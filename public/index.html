@@ -2,78 +2,145 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard</title>
+  <title>Act4</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 100%);
+      min-height: 100vh;
       padding: 20px;
-    }
-    h1 {
-      background: #1a1a2e;
       color: white;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
+    }
+    .header {
+      background: rgba(26, 26, 46, 0.9);
+      padding: 20px 40px;
+      border-radius: 15px;
+      margin-bottom: 30px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border: 2px solid #00d9ff;
+      box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
+    }
+    h1 {
+      color: #00d9ff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 24px;
     }
     button {
       padding: 10px 20px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 14px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s;
     }
-    .btn-logout { background: #dc2626; color: white; }
-    .btn-add { background: #16a34a; color: white; margin-bottom: 20px; }
-    .btn-delete { background: #dc2626; color: white; }
-    button:hover { opacity: 0.9; }
+    .btn-logout { 
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+      color: white;
+    }
+    .btn-logout:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(220, 38, 38, 0.4);
+    }
+    .btn-add { 
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      color: white;
+      margin-bottom: 20px;
+    }
+    .btn-add:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(22, 163, 74, 0.4);
+    }
+    .btn-delete { 
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+      color: white;
+      padding: 8px 15px;
+      font-size: 12px;
+    }
+    .btn-delete:hover {
+      box-shadow: 0 3px 15px rgba(220, 38, 38, 0.4);
+    }
     .container {
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      max-width: 1000px;
+      background: rgba(26, 26, 46, 0.9);
+      padding: 40px;
+      border-radius: 15px;
+      max-width: 1200px;
       margin: 0 auto;
+      border: 2px solid #00d9ff;
+      box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
+    }
+    h3 {
+      color: #00d9ff;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
     input {
       padding: 10px;
       margin-right: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      margin-bottom: 10px;
+      border: 2px solid #00d9ff;
+      border-radius: 8px;
       font-size: 14px;
+      background: rgba(0, 217, 255, 0.1);
+      color: white;
+      transition: all 0.3s;
+    }
+    input::placeholder { color: rgba(255, 255, 255, 0.5); }
+    input:focus {
+      outline: none;
+      background: rgba(0, 217, 255, 0.2);
+      box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
     }
     #products {
-      margin-top: 20px;
+      margin-top: 30px;
     }
     .product {
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      margin-bottom: 10px;
+      padding: 20px;
+      border: 2px solid #00d9ff;
+      border-radius: 10px;
+      margin-bottom: 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: rgba(0, 217, 255, 0.05);
+      transition: all 0.3s;
     }
-    hr { margin: 20px 0; border: none; border-top: 1px solid #ddd; }
+    .product:hover {
+      background: rgba(0, 217, 255, 0.1);
+      box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+    }
+    .product strong {
+      color: #00d9ff;
+      font-size: 18px;
+    }
+    hr { 
+      margin: 30px 0; 
+      border: none; 
+      border-top: 2px solid rgba(0, 217, 255, 0.3);
+    }
   </style>
 </head>
 <body>
-  <h1>
-    Productos
-    <button class="btn-logout" onclick="logout()">Salir</button>
-  </h1>
+  <div class="header">
+    <h1>Gestión de Productos</h1>
+    <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+  </div>
   
   <div class="container">
     <h3>Agregar Producto</h3>
     <div style="margin: 20px 0;">
-      <input id="name" placeholder="Nombre">
+      <input id="name" placeholder="Nombre del producto">
       <input id="price" type="number" placeholder="Precio">
       <input id="category" placeholder="Categoría">
       <input id="stock" type="number" placeholder="Stock">
-      <button class="btn-add" onclick="addProduct()">Agregar</button>
+      <button class="btn-add" onclick="addProduct()">+ Agregar</button>
     </div>
     
     <hr>
