@@ -25,10 +25,10 @@ jobs:
         node-version: '18'
     
     - name: Install dependencies
-      run: npm install
+      run: npm ci
     
     - name: Run tests
-      run: npm test
+      run: npx jest --forceExit
       env:
         MONGODB_URI: mongodb://localhost:27017/act4
         JWT_SECRET: test-secret-key
