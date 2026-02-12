@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Act4</title>
+  <title>Act4 - Gestión de Productos</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -53,6 +53,10 @@
       color: white;
       margin-bottom: 20px;
     }
+    /* Estilo para el estado de edición */
+    .btn-edit-mode {
+      background: linear-gradient(135deg, #00d9ff 0%, #0088ff 100%);
+    }
     .btn-add:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 20px rgba(22, 163, 74, 0.4);
@@ -63,8 +67,17 @@
       padding: 8px 15px;
       font-size: 12px;
     }
-    .btn-delete:hover {
-      box-shadow: 0 3px 15px rgba(220, 38, 38, 0.4);
+    /* Botón Editar en la lista */
+    .btn-action-edit {
+      background: linear-gradient(135deg, #00d9ff 0%, #0088ff 100%);
+      color: white;
+      padding: 8px 15px;
+      font-size: 12px;
+      margin-right: 5px;
+    }
+    .btn-delete:hover, .btn-action-edit:hover {
+      box-shadow: 0 3px 15px rgba(0, 217, 255, 0.4);
+      transform: scale(1.05);
     }
     .container {
       background: rgba(26, 26, 46, 0.9);
@@ -134,13 +147,16 @@
   </div>
   
   <div class="container">
-    <h3>Agregar Producto</h3>
+    <h3 id="form-title">Agregar Producto</h3>
     <div style="margin: 20px 0;">
+      <input type="hidden" id="product-id">
+      
       <input id="name" placeholder="Nombre del producto">
       <input id="price" type="number" placeholder="Precio">
       <input id="category" placeholder="Categoría">
       <input id="stock" type="number" placeholder="Stock">
-      <button class="btn-add" onclick="addProduct()">+ Agregar</button>
+      <button id="btn-submit" class="btn-add" onclick="handleSubmit()">+ Agregar</button>
+      <button id="btn-cancel" style="display:none; background: #666;" onclick="clearForm()">Cancelar</button>
     </div>
     
     <hr>
@@ -152,6 +168,8 @@
     const token = localStorage.getItem('token');
     if (!token) window.location.href = '/login.html';
 
+    let isEditing = false;
+
     async function loadProducts() {
       const res = await fetch('/api/products', {
         headers: { 'authorization': token }
@@ -162,31 +180,80 @@
           <div>
             <strong>${p.name}</strong> - $${p.price} - Categoría: ${p.category} - Stock: ${p.stock}
           </div>
-          <button class="btn-delete" onclick="deleteProduct('${p._id}')">Eliminar</button>
+          <div>
+            <button class="btn-action-edit" onclick="prepareEdit('${p._id}', '${p.name}', ${p.price}, '${p.category}', ${p.stock})">Editar</button>
+            <button class="btn-delete" onclick="deleteProduct('${p._id}')">Eliminar</button>
+          </div>
         </div>`
       ).join('');
     }
 
-    async function addProduct() {
-      await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'authorization': token
-        },
-        body: JSON.stringify({
-          name: document.getElementById('name').value,
-          description: '',
-          price: document.getElementById('price').value,
-          category: document.getElementById('category').value,
-          stock: document.getElementById('stock').value
-        })
-      });
+    // Esta función decide si agregamos uno nuevo o editamos uno existente
+    async function handleSubmit() {
+      const id = document.getElementById('product-id').value;
+      const data = {
+        name: document.getElementById('name').value,
+        description: '',
+        price: document.getElementById('price').value,
+        category: document.getElementById('category').value,
+        stock: document.getElementById('stock').value
+      };
+
+      if (isEditing) {
+        // Lógica para EDITAR (PUT)
+        await fetch(`/api/products/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': token
+          },
+          body: JSON.stringify(data)
+        });
+      } else {
+        // Lógica para AGREGAR (POST)
+        await fetch('/api/products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': token
+          },
+          body: JSON.stringify(data)
+        });
+      }
+
+      clearForm();
+      loadProducts();
+    }
+
+    // Sube los datos al formulario para editar
+    function prepareEdit(id, name, price, category, stock) {
+      isEditing = true;
+      document.getElementById('product-id').value = id;
+      document.getElementById('name').value = name;
+      document.getElementById('price').value = price;
+      document.getElementById('category').value = category;
+      document.getElementById('stock').value = stock;
+
+      // Cambiar interfaz
+      document.getElementById('form-title').innerText = "Editar Producto";
+      document.getElementById('btn-submit').innerText = "Guardar Cambios";
+      document.getElementById('btn-submit').classList.add('btn-edit-mode');
+      document.getElementById('btn-cancel').style.display = "inline-block";
+    }
+
+    function clearForm() {
+      isEditing = false;
+      document.getElementById('product-id').value = '';
       document.getElementById('name').value = '';
       document.getElementById('price').value = '';
       document.getElementById('category').value = '';
       document.getElementById('stock').value = '';
-      loadProducts();
+      
+      // Regresar interfaz a la normalidad
+      document.getElementById('form-title').innerText = "Agregar Producto";
+      document.getElementById('btn-submit').innerText = "+ Agregar";
+      document.getElementById('btn-submit').classList.remove('btn-edit-mode');
+      document.getElementById('btn-cancel').style.display = "none";
     }
 
     async function deleteProduct(id) {

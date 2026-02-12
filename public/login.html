@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Gestión de Productos</title>
   <style>
+    /* ... (todo lo demás igual) ... */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Arial', sans-serif;
@@ -47,11 +48,13 @@
       background: rgba(0, 217, 255, 0.2);
       box-shadow: 0 0 15px rgba(0, 217, 255, 0.5);
     }
+
+    /* BOTÓN PRINCIPAL AZUL SÓLIDO */
     button {
       width: 100%;
       padding: 12px;
-      background: linear-gradient(135deg, #00d9ff 0%, #0099cc 100%);
-      color: white;
+      background: #00d9ff;
+      color: #0a0e27;
       border: none;
       border-radius: 8px;
       font-size: 16px;
@@ -64,14 +67,24 @@
     }
     button:hover { 
       transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(0, 217, 255, 0.4);
+      box-shadow: 0 0 20px #00d9ff;
     }
+
+    /* BOTÓN SECUNDARIO AZUL NEÓN (BORDE Y TEXTO) */
     .btn-secondary { 
-      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      background: transparent;
+      border: 2px solid #00d9ff;
+      color: #00d9ff;
+      font-size: 12px;
+      margin-top: 10px;
+      box-shadow: inset 0 0 10px rgba(0, 217, 255, 0.2);
     }
     .btn-secondary:hover {
-      box-shadow: 0 5px 20px rgba(22, 163, 74, 0.4);
+      background: rgba(0, 217, 255, 0.1);
+      box-shadow: 0 0 15px rgba(0, 217, 255, 0.4), inset 0 0 10px rgba(0, 217, 255, 0.2);
+      color: white;
     }
+
     #mensaje { 
       text-align: center; 
       margin-top: 20px; 
@@ -83,11 +96,14 @@
 <body>
   <div class="container">
     <h2 id="title">Iniciar Sesión</h2>
-    <input type="text" id="name" placeholder="Nombre completo" style="display:none;" />
+    <input type="text" id="name" placeholder="Nombre" style="display:none;" />
     <input type="email" id="email" placeholder="Correo electrónico" />
     <input type="password" id="password" placeholder="Contraseña" />
+    
     <button id="mainBtn" onclick="login()">Entrar</button>
-    <button class="btn-secondary" onclick="toggleMode()">Registrarse</button>
+    
+    <button id="toggleBtn" class="btn-secondary" onclick="toggleMode()">¿No tienes cuenta? Regístrate</button>
+    
     <p id="mensaje"></p>
   </div>
 
@@ -99,17 +115,20 @@
       const nameInput = document.getElementById('name');
       const title = document.getElementById('title');
       const mainBtn = document.getElementById('mainBtn');
+      const toggleBtn = document.getElementById('toggleBtn');
 
       if (isRegisterMode) {
         nameInput.style.display = 'block';
-        title.textContent = 'Registrarse';
+        title.textContent = 'Crear Cuenta';
         mainBtn.textContent = 'Registrar';
         mainBtn.onclick = register;
+        toggleBtn.textContent = '¿Ya tienes cuenta? Inicia Sesión';
       } else {
         nameInput.style.display = 'none';
         title.textContent = 'Iniciar Sesión';
         mainBtn.textContent = 'Entrar';
         mainBtn.onclick = login;
+        toggleBtn.textContent = '¿No tienes cuenta? Regístrate';
       }
       document.getElementById('mensaje').textContent = '';
     }
@@ -118,6 +137,11 @@
       const name = document.getElementById('name').value;
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
+
+      if(!name || !email || !password) {
+          mostrarMensaje('Rellena todos los campos', '#ff4444');
+          return;
+      }
 
       const res = await fetch('/api/auth/register', {
         method: 'POST',
@@ -128,12 +152,10 @@
       const data = await res.json();
 
       if (res.ok) {
-        document.getElementById('mensaje').style.color = '#16a34a';
-        document.getElementById('mensaje').textContent = 'Registro exitoso! Ahora inicia sesión';
+        mostrarMensaje('¡Registro exitoso! Ya puedes entrar', '#00d9ff');
         toggleMode();
       } else {
-        document.getElementById('mensaje').style.color = '#dc2626';
-        document.getElementById('mensaje').textContent = data.message;
+        mostrarMensaje(data.message, '#ff4444');
       }
     }
 
@@ -153,9 +175,14 @@
         localStorage.setItem('token', data.token);
         window.location.href = '/index.html';
       } else {
-        document.getElementById('mensaje').style.color = '#dc2626';
-        document.getElementById('mensaje').textContent = data.message;
+        mostrarMensaje(data.message, '#ff4444');
       }
+    }
+
+    function mostrarMensaje(texto, color) {
+        const msgDiv = document.getElementById('mensaje');
+        msgDiv.style.color = color;
+        msgDiv.textContent = texto;
     }
   </script>
 </body>
