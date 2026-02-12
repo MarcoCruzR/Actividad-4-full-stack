@@ -1,11 +1,12 @@
 {
   "name": "act4",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Aplicación de gestión de productos con autenticación",
+  "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
-    "test": "node_modules/.bin/jest --forceExit"
+    "test": "jest --forceExit",
+    "build": "echo 'No build step'"
   },
   "keywords": [],
   "author": "",
