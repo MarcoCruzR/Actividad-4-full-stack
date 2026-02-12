@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Gestión de Productos</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      width: 350px;
+    }
+    h2 { text-align: center; margin-bottom: 24px; color: #1a1a2e; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    button:hover { background: #1d4ed8; }
+    .btn-secondary { background: #16a34a; }
+    .btn-secondary:hover { background: #15803d; }
+    #mensaje { text-align: center; margin-top: 16px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 id="title">Iniciar Sesión</h2>
+    <input type="text" id="name" placeholder="Usuario" style="display:none;" />
+    <input type="email" id="email" placeholder="Correo electrónico" />
+    <input type="password" id="password" placeholder="Contraseña" />
+    <button id="mainBtn" onclick="login()">Entrar</button>
+    <button class="btn-secondary" onclick="toggleMode()">Registrarse</button>
+    <p id="mensaje"></p>
+  </div>
+
+  <script>
+    let isRegisterMode = false;
+
+    function toggleMode() {
+      isRegisterMode = !isRegisterMode;
+      const nameInput = document.getElementById('name');
+      const title = document.getElementById('title');
+      const mainBtn = document.getElementById('mainBtn');
+
+      if (isRegisterMode) {
+        nameInput.style.display = 'block';
+        title.textContent = 'Registrarse';
+        mainBtn.textContent = 'Registrar';
+        mainBtn.onclick = register;
+      } else {
+        nameInput.style.display = 'none';
+        title.textContent = 'Iniciar Sesión';
+        mainBtn.textContent = 'Entrar';
+        mainBtn.onclick = login;
+      }
+      document.getElementById('mensaje').textContent = '';
+    }
+
+    async function register() {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        document.getElementById('mensaje').style.color = 'green';
+        document.getElementById('mensaje').textContent = 'Registro exitoso! Ahora inicia sesión';
+        toggleMode();
+      } else {
+        document.getElementById('mensaje').style.color = 'red';
+        document.getElementById('mensaje').textContent = data.message;
+      }
+    }
+
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        window.location.href = '/index.html';
+      } else {
+        document.getElementById('mensaje').style.color = 'red';
+        document.getElementById('mensaje').textContent = data.message;
+      }
+    }
+  </script>
+</body>
+</html>

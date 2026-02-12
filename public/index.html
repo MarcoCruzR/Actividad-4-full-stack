@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    h1 {
+      background: #1a1a2e;
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-logout { background: #dc2626; color: white; }
+    .btn-add { background: #16a34a; color: white; margin-bottom: 20px; }
+    .btn-delete { background: #dc2626; color: white; }
+    button:hover { opacity: 0.9; }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    input {
+      padding: 10px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    #products {
+      margin-top: 20px;
+    }
+    .product {
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    hr { margin: 20px 0; border: none; border-top: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <h1>
+    Productos
+    <button class="btn-logout" onclick="logout()">Salir</button>
+  </h1>
+  
+  <div class="container">
+    <h3>Agregar Producto</h3>
+    <div style="margin: 20px 0;">
+      <input id="name" placeholder="Nombre">
+      <input id="price" type="number" placeholder="Precio">
+      <input id="category" placeholder="Categoría">
+      <input id="stock" type="number" placeholder="Stock">
+      <button class="btn-add" onclick="addProduct()">Agregar</button>
+    </div>
+    
+    <hr>
+    <h3>Lista de Productos</h3>
+    <div id="products"></div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/login.html';
+
+    async function loadProducts() {
+      const res = await fetch('/api/products', {
+        headers: { 'authorization': token }
+      });
+      const products = await res.json();
+      document.getElementById('products').innerHTML = products.map(p => 
+        `<div class="product">
+          <div>
+            <strong>${p.name}</strong> - $${p.price} - Categoría: ${p.category} - Stock: ${p.stock}
+          </div>
+          <button class="btn-delete" onclick="deleteProduct('${p._id}')">Eliminar</button>
+        </div>`
+      ).join('');
+    }
+
+    async function addProduct() {
+      await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': token
+        },
+        body: JSON.stringify({
+          name: document.getElementById('name').value,
+          description: '',
+          price: document.getElementById('price').value,
+          category: document.getElementById('category').value,
+          stock: document.getElementById('stock').value
+        })
+      });
+      document.getElementById('name').value = '';
+      document.getElementById('price').value = '';
+      document.getElementById('category').value = '';
+      document.getElementById('stock').value = '';
+      loadProducts();
+    }
+
+    async function deleteProduct(id) {
+      if (confirm('¿Eliminar este producto?')) {
+        await fetch(`/api/products/${id}`, {
+          method: 'DELETE',
+          headers: { 'authorization': token }
+        });
+        loadProducts();
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = '/login.html';
+    }
+
+    loadProducts();
+  </script>
+</body>
+</html>
